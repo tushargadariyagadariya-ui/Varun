@@ -1,0 +1,679 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Customer or seller user profile, contact info, saved delivery addresses, and referral metadata.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "role": { "type": "string", "enum": ["customer", "seller", "admin"] },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "referralCode": { "type": "string", "minLength": 4, "maxLength": 32 },
+        "referredBy": { "type": "string", "maxLength": 32 },
+        "rewardPoints": { "type": "number" },
+        "preferredLanguage": { "type": "string", "enum": ["en", "hi"] },
+        "upiId": { "type": "string", "maxLength": 100 },
+        "addresses": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role", "referralCode", "rewardPoints", "createdAt", "updatedAt"]
+    },
+    "Seller": {
+      "title": "Seller",
+      "description": "Public storefront profile for a registered marketplace vendor with suspension and closure state.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "storeSlug": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "ownerName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "city": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "state": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 600 },
+        "isVerified": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "storeStatus": { "type": "string", "enum": ["Active", "Suspended", "Closed"] },
+        "totalSales": { "type": "number" },
+        "totalEarnings": { "type": "number" },
+        "closedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "storeName", "storeSlug", "ownerName", "city", "state", "isVerified", "totalSales", "totalEarnings", "createdAt", "updatedAt"]
+    },
+    "Store": {
+      "title": "Store",
+      "description": "Dedicated seller storefront metadata record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "storeSlug": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 600 },
+        "city": { "type": "string", "maxLength": 80 },
+        "state": { "type": "string", "maxLength": 80 },
+        "isVerified": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "storeStatus": { "type": "string", "enum": ["Active", "Suspended", "Closed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "storeName", "storeSlug", "isActive", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Marketplace product category taxonomy item.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "slug": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 300 },
+        "sortOrder": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "slug", "isActive", "createdAt", "updatedAt"]
+    },
+    "Cart": {
+      "title": "Cart",
+      "description": "Private customer shopping cart record.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "updatedAt"]
+    },
+    "Address": {
+      "title": "Address",
+      "description": "Saved customer delivery address.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "label": { "type": "string", "maxLength": 40 },
+        "fullName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "phone": { "type": "string", "minLength": 8, "maxLength": 20 },
+        "street": { "type": "string", "minLength": 3, "maxLength": 250 },
+        "city": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "state": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "pincode": { "type": "string", "minLength": 4, "maxLength": 12 },
+        "isDefault": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "fullName", "phone", "street", "city", "state", "pincode", "createdAt", "updatedAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Marketplace product listing (Owner central or Seller Type A own product) with pricing, ownership type, stock, and supplier linkage.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "ownershipType": { "type": "string", "enum": ["OWNER", "SELLER_OWNED"] },
+        "title": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "description": { "type": "string", "minLength": 5, "maxLength": 2000 },
+        "category": { "type": "string", "enum": ["Electronics", "Home & Kitchen", "Beauty", "Footwear", "Fashion", "Accessories"] },
+        "basePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "mrp": { "type": "number" },
+        "sellerMargin": { "type": "number" },
+        "maxSellerMargin": { "type": "number" },
+        "stock": { "type": "number" },
+        "images": { "type": "array" },
+        "tags": { "type": "array" },
+        "ratingAvg": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "availableForSellers": { "type": "boolean" },
+        "supplierId": { "type": "string", "maxLength": 128 },
+        "supplierName": { "type": "string", "maxLength": 120 },
+        "supplierSku": { "type": "string", "maxLength": 80 },
+        "supplierProductId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "sellerStoreName", "title", "description", "category", "basePrice", "sellingPrice", "mrp", "sellerMargin", "stock", "images", "ratingAvg", "ratingCount", "isActive", "createdAt", "updatedAt"]
+    },
+    "StoreProduct": {
+      "title": "StoreProduct",
+      "description": "Seller Type B store listing referencing an owner-approved central marketplace product with seller margin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "productId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "basePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "sellerMargin": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "sellerStoreName", "productId", "basePrice", "sellingPrice", "sellerMargin", "isActive", "createdAt", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Routed customer order separating DIRECT_OWNER, SELLER_OWN_PRODUCT, and SELLER_DROPSHIP with fee, margin, return deadline, and payout tracking.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "checkoutGroupId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "guestSessionId": { "type": "string", "maxLength": 128 },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "maxLength": 100 },
+        "ownershipType": { "type": "string", "enum": ["OWNER", "SELLER_OWNED"] },
+        "orderType": { "type": "string", "enum": ["DIRECT_OWNER", "SELLER_OWN_PRODUCT", "SELLER_DROPSHIP"] },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "totalSellerMargin": { "type": "number" },
+        "tisaharaFee": { "type": "number" },
+        "sellerPayableAmount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["COD", "ONLINE_PENDING"] },
+        "paymentStatus": { "type": "string", "enum": ["Pending", "Paid", "Refunded"] },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] },
+        "returnStatus": { "type": "string", "enum": ["None", "Requested", "Approved", "Rejected", "Refunded"] },
+        "payoutStatus": { "type": "string", "enum": ["Pending", "In_Return_Window", "Held_Return", "Eligible", "Payout_Requested", "Paid", "Forfeited_Cancelled", "Forfeited_Refunded"] },
+        "payoutId": { "type": "string", "maxLength": 128 },
+        "deliveredAt": { "type": "string", "format": "date-time" },
+        "deliveredAtMs": { "type": "number" },
+        "returnDeadline": { "type": "string" },
+        "returnDeadlineMs": { "type": "number" },
+        "shippingAddress": { "type": "object" },
+        "courierPartner": { "type": "string", "maxLength": 80 },
+        "trackingNumber": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "checkoutGroupId", "customerId", "sellerId", "sellerStoreName", "items", "subtotal", "deliveryFee", "discountAmount", "totalAmount", "totalSellerMargin", "paymentMethod", "paymentStatus", "status", "shippingAddress", "createdAt", "updatedAt"]
+    },
+    "OrderItemRecord": {
+      "title": "OrderItemRecord",
+      "description": "Normalized itemized line record linked to an order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 140 },
+        "quantity": { "type": "number" },
+        "basePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "sellerMargin": { "type": "number" },
+        "orderType": { "type": "string", "enum": ["DIRECT_OWNER", "SELLER_OWN_PRODUCT", "SELLER_DROPSHIP"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "customerId", "sellerId", "productId", "title", "quantity", "basePrice", "sellingPrice", "sellerMargin", "createdAt"]
+    },
+    "ReturnRequest": {
+      "title": "ReturnRequest",
+      "description": "Customer 7-day return request linked to a delivered order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderType": { "type": "string", "enum": ["DIRECT_OWNER", "SELLER_OWN_PRODUCT", "SELLER_DROPSHIP"] },
+        "reason": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "comments": { "type": "string", "maxLength": 800 },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Requested", "Approved", "Rejected", "Refunded"] },
+        "adminNote": { "type": "string", "maxLength": 400 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "customerId", "sellerId", "reason", "amount", "status", "createdAt", "updatedAt"]
+    },
+    "RefundRecord": {
+      "title": "RefundRecord",
+      "description": "Customer refund record linked to an approved return or cancelled prepaid order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "returnId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["Pending", "Processed", "Failed"] },
+        "note": { "type": "string", "maxLength": 400 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "customerId", "sellerId", "amount", "method", "status", "createdAt", "updatedAt"]
+    },
+    "PayoutRecord": {
+      "title": "PayoutRecord",
+      "description": "Seller payout request and Owner approval ledger after the 7-day return period.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerName": { "type": "string", "maxLength": 120 },
+        "sellerStoreName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "orderIds": { "type": "array" },
+        "grossAmount": { "type": "number" },
+        "eligibleEarnings": { "type": "number" },
+        "tisaharaFeeTotal": { "type": "number" },
+        "requestedAmount": { "type": "number" },
+        "netPayableAmount": { "type": "number" },
+        "upiId": { "type": "string", "maxLength": 100 },
+        "bankDetails": { "type": "string", "maxLength": 240 },
+        "maskedAccountNumber": { "type": "string", "maxLength": 32 },
+        "ifscCode": { "type": "string", "maxLength": 16 },
+        "bankName": { "type": "string", "maxLength": 120 },
+        "accountHolderName": { "type": "string", "maxLength": 120 },
+        "branchName": { "type": "string", "maxLength": 120 },
+        "beneficiaryId": { "type": "string", "maxLength": 128 },
+        "paymentProvider": { "type": "string", "maxLength": 60 },
+        "paymentReference": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["Pending", "Requested", "Under Review", "Approved", "Processing", "Paid", "Failed", "On Hold", "Rejected"] },
+        "transactionRef": { "type": "string", "maxLength": 128 },
+        "adminNote": { "type": "string", "maxLength": 300 },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "processedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "sellerStoreName", "orderIds", "grossAmount", "tisaharaFeeTotal", "netPayableAmount", "status", "createdAt", "updatedAt"]
+    },
+    "SellerBankAccount": {
+      "title": "SellerBankAccount",
+      "description": "Seller bank payout destination with masked account display, IFSC validation, and mandatory re-verification on edits.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "accountHolderName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "maskedAccountNumber": { "type": "string", "minLength": 4, "maxLength": 32 },
+        "accountLast4": { "type": "string", "minLength": 4, "maxLength": 4, "pattern": "^[0-9]{4}$" },
+        "accountNumberHash": { "type": "string", "maxLength": 128 },
+        "encryptedVaultToken": { "type": "string", "maxLength": 600 },
+        "ifscCode": { "type": "string", "minLength": 11, "maxLength": 11, "pattern": "^[A-Z]{4}0[A-Z0-9]{6}$" },
+        "bankName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "branchName": { "type": "string", "maxLength": 120 },
+        "provider": { "type": "string", "enum": ["manual", "razorpayx", "cashfree"] },
+        "beneficiaryId": { "type": "string", "maxLength": 128 },
+        "verificationStatus": { "type": "string", "enum": ["Pending_Verification", "Verified", "Rejected"] },
+        "isVerified": { "type": "boolean" },
+        "verificationNote": { "type": "string", "maxLength": 300 },
+        "verifiedBy": { "type": "string", "maxLength": 128 },
+        "verifiedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "sellerStoreName", "accountHolderName", "maskedAccountNumber", "accountLast4", "ifscCode", "bankName", "verificationStatus", "isVerified", "createdAt", "updatedAt"]
+    },
+    "SellerEarnings": {
+      "title": "SellerEarnings",
+      "description": "Per-seller financial ledger tracking total earnings, pending earnings, 7-day return hold, available balance, fees, and paid totals.",
+      "type": "object",
+      "properties": {
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "maxLength": 100 },
+        "totalEarnings": { "type": "number" },
+        "pendingEarnings": { "type": "number" },
+        "returnPeriodHold": { "type": "number" },
+        "availableForPayout": { "type": "number" },
+        "totalTisaharaFees": { "type": "number" },
+        "totalPaid": { "type": "number" },
+        "pendingPayoutRequestTotal": { "type": "number" },
+        "eligibleOrderIds": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sellerId", "totalEarnings", "pendingEarnings", "returnPeriodHold", "availableForPayout", "totalTisaharaFees", "totalPaid", "updatedAt"]
+    },
+    "PayoutTransaction": {
+      "title": "PayoutTransaction",
+      "description": "Immutable auditable transaction log for every seller payout request and status transition.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "payoutId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerStoreName": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["Pending", "Requested", "Under Review", "Approved", "Processing", "Paid", "Failed", "On Hold", "Rejected"] },
+        "amount": { "type": "number" },
+        "tisaharaFeeTotal": { "type": "number" },
+        "maskedAccountNumber": { "type": "string", "maxLength": 32 },
+        "ifscCode": { "type": "string", "maxLength": 16 },
+        "paymentProvider": { "type": "string", "maxLength": 60 },
+        "paymentReference": { "type": "string", "maxLength": 128 },
+        "note": { "type": "string", "maxLength": 300 },
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "actorRole": { "type": "string", "enum": ["seller", "admin", "provider"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "payoutId", "sellerId", "status", "amount", "actorUid", "actorRole", "createdAt"]
+    },
+    "CommissionRecord": {
+      "title": "CommissionRecord",
+      "description": "Per-order TISAHARA platform fee record (₹10 Type A, ₹5 Type B, ₹0 Direct Owner) keyed by orderId to prevent duplicate deductions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "storeId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderType": { "type": "string", "enum": ["DIRECT_OWNER", "SELLER_OWN_PRODUCT", "SELLER_DROPSHIP"] },
+        "feeAmount": { "type": "number" },
+        "orderSubtotal": { "type": "number" },
+        "sellerMargin": { "type": "number" },
+        "sellerPayableAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending_Delivery", "In_Return_Window", "Settled", "Voided_Cancelled", "Voided_Refunded"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "sellerId", "orderType", "feeAmount", "orderSubtotal", "sellerMargin", "sellerPayableAmount", "status", "createdAt", "updatedAt"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Modular Owner-managed supplier profile ready for DeoDap or manual fulfillment.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "contactPerson": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "email": { "type": "string", "maxLength": 160 },
+        "city": { "type": "string", "maxLength": 80 },
+        "integrationMode": { "type": "string", "enum": ["Manual", "DeoDap_API_Ready"] },
+        "notes": { "type": "string", "maxLength": 500 },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "integrationMode", "isActive", "createdAt", "updatedAt"]
+    },
+    "SupplierProduct": {
+      "title": "SupplierProduct",
+      "description": "Manual supplier product SKU and stock record linked to an Owner central product.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "supplierId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "supplierName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "sku": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "title": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "costPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "connectedOwnerProductId": { "type": "string", "maxLength": 128 },
+        "notes": { "type": "string", "maxLength": 400 },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "supplierId", "supplierName", "sku", "title", "costPrice", "stock", "isActive", "createdAt", "updatedAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Private customer payment transaction state.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["COD", "ONLINE_PENDING", "UPI", "CARD"] },
+        "status": { "type": "string", "enum": ["Pending", "Paid", "Failed", "Refunded"] },
+        "gatewayRef": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "customerId", "amount", "method", "status", "createdAt", "updatedAt"]
+    },
+    "SupplierOrder": {
+      "title": "SupplierOrder",
+      "description": "Seller-scoped wholesale or supplier fulfillment order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sellerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "supplierName": { "type": "string", "maxLength": 120 },
+        "items": { "type": "array" },
+        "totalCost": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Dispatched", "Delivered", "Cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sellerId", "totalCost", "status", "createdAt", "updatedAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer product review and rating.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "rating": { "type": "number" },
+        "comment": { "type": "string", "minLength": 2, "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "productId", "userId", "userName", "rating", "comment", "createdAt"]
+    },
+    "WishlistItem": {
+      "title": "WishlistItem",
+      "description": "Customer saved wishlist product reference.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "productId", "createdAt"]
+    },
+    "Referral": {
+      "title": "Referral",
+      "description": "Referral tracking record linking referrer and referred customer.",
+      "type": "object",
+      "properties": {
+        "referrerUserId": { "type": "string", "maxLength": 128 },
+        "referrerCode": { "type": "string", "maxLength": 32 },
+        "referredUserId": { "type": "string", "maxLength": 128 },
+        "referredUserName": { "type": "string", "maxLength": 120 },
+        "rewardAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Credited"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["referrerUserId", "referrerCode", "referredUserId", "referredUserName", "rewardAmount", "status", "createdAt"]
+    },
+    "ReferralCodeIndex": {
+      "title": "ReferralCodeIndex",
+      "description": "Non-PII exact-code lookup index for verifying referral codes without exposing user profiles.",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "minLength": 4, "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["code", "userId", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User or seller notification item.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "type": { "type": "string", "enum": ["order", "seller", "referral", "system"] },
+        "relatedId": { "type": "string", "maxLength": 128 },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "type", "isRead", "createdAt"]
+    },
+    "MarketplaceSettings": {
+      "title": "MarketplaceSettings",
+      "description": "Owner-controlled global marketplace order acceptance and payout minimum configuration.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "acceptingOrders": { "type": "boolean" },
+        "pauseMessage": { "type": "string", "maxLength": 300 },
+        "minPayoutAmount": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "acceptingOrders", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Console-managed authorized marketplace administrator UIDs."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/MarketplaceSettings" },
+      "description": "Owner-controlled global marketplace order acceptance and configuration."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Private user account profiles, delivery addresses, phone numbers, and referral codes."
+    },
+    "/sellers/{sellerId}": {
+      "schema": { "$ref": "#/entities/Seller" },
+      "description": "Public seller store profiles, status (Active/Suspended/Closed), and aggregate sales metrics."
+    },
+    "/stores/{storeId}": {
+      "schema": { "$ref": "#/entities/Store" },
+      "description": "Dedicated seller store metadata."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Public marketplace category taxonomy."
+    },
+    "/carts/{userId}": {
+      "schema": { "$ref": "#/entities/Cart" },
+      "description": "Private user cart state."
+    },
+    "/addresses/{addressId}": {
+      "schema": { "$ref": "#/entities/Address" },
+      "description": "User delivery address records."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Unified homepage marketplace catalog holding both Owner central products and Seller Type A own products."
+    },
+    "/ownerProducts/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Owner central catalog mirror for Owner-supplied products."
+    },
+    "/storeProducts/{storeProductId}": {
+      "schema": { "$ref": "#/entities/StoreProduct" },
+      "description": "Seller Type B store listings referencing Owner central products."
+    },
+    "/sellerStoreProducts/{storeProductId}": {
+      "schema": { "$ref": "#/entities/StoreProduct" },
+      "description": "Normalized seller store product listings mirror."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer orders routed cleanly by orderType (DIRECT_OWNER, SELLER_OWN_PRODUCT, SELLER_DROPSHIP)."
+    },
+    "/orderItems/{orderItemId}": {
+      "schema": { "$ref": "#/entities/OrderItemRecord" },
+      "description": "Normalized itemized order lines."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Private customer payment records."
+    },
+    "/returns/{returnId}": {
+      "schema": { "$ref": "#/entities/ReturnRequest" },
+      "description": "Customer 7-day return requests keyed by orderId."
+    },
+    "/refunds/{refundId}": {
+      "schema": { "$ref": "#/entities/RefundRecord" },
+      "description": "Customer refund records linked to returns."
+    },
+    "/payouts/{payoutId}": {
+      "schema": { "$ref": "#/entities/PayoutRecord" },
+      "description": "Legacy & mirrored seller payout requests and Owner approvals."
+    },
+    "/sellerBankAccounts/{sellerId}": {
+      "schema": { "$ref": "#/entities/SellerBankAccount" },
+      "description": "Private seller bank account payout destination with masked account numbers and verification status."
+    },
+    "/sellerEarnings/{sellerId}": {
+      "schema": { "$ref": "#/entities/SellerEarnings" },
+      "description": "Private per-seller earnings, return hold, fee, and available balance ledger."
+    },
+    "/payoutRequests/{payoutId}": {
+      "schema": { "$ref": "#/entities/PayoutRecord" },
+      "description": "Authoritative seller payout requests with masked bank snapshot and Owner status workflow."
+    },
+    "/payoutTransactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/PayoutTransaction" },
+      "description": "Immutable auditable transaction history for seller payout lifecycle events."
+    },
+    "/commissions/{commissionId}": {
+      "schema": { "$ref": "#/entities/CommissionRecord" },
+      "description": "Per-order TISAHARA platform fee ledger (₹10 Type A, ₹5 Type B, ₹0 Direct Owner)."
+    },
+    "/platformFees/{feeId}": {
+      "schema": { "$ref": "#/entities/CommissionRecord" },
+      "description": "Authoritative per-order TISAHARA platform fee ledger keyed by orderId."
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "Owner-managed supplier records (manual & DeoDap API ready)."
+    },
+    "/supplierProducts/{supplierProductId}": {
+      "schema": { "$ref": "#/entities/SupplierProduct" },
+      "description": "Supplier SKU catalog linked to Owner central products."
+    },
+    "/supplierOrders/{supplierOrderId}": {
+      "schema": { "$ref": "#/entities/SupplierOrder" },
+      "description": "Seller supplier fulfillment records."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Public product ratings and reviews."
+    },
+    "/wishlist/{wishlistId}": {
+      "schema": { "$ref": "#/entities/WishlistItem" },
+      "description": "Authenticated customer saved wishlist items."
+    },
+    "/referrals/{referralId}": {
+      "schema": { "$ref": "#/entities/Referral" },
+      "description": "Referral attribution and reward records."
+    },
+    "/referralCodes/{code}": {
+      "schema": { "$ref": "#/entities/ReferralCodeIndex" },
+      "description": "Non-PII exact-code referral lookup index."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app notifications for customers and sellers."
+    }
+  }
+}

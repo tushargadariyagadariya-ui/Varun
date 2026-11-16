@@ -1,0 +1,21 @@
+{
+  "name": "TISAHARA — Indian Multi-Vendor Marketplace",
+  "short_name": "TISAHARA",
+  "description": "Shop curated fashion, electronics, home & kitchen, beauty, footwear, and accessories directly from Indian sellers on TISAHARA.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#7E22CE",
+  "background_color": "#FFFFFF",
+  "lang": "en-IN",
+  "categories": ["shopping", "lifestyle", "business"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

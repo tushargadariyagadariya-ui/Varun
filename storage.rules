@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Global Default Deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'tushargadariyagadariya@gmail.com';
+    }
+
+    // Public catalog product images — writable only by the owning seller (or verified admin)
+    match /products/{sellerId}/{fileName} {
+      allow read: if true;
+      allow create, update: if isSignedIn()
+        && (request.auth.uid == sellerId || isAdmin())
+        && fileName.size() <= 160
+        && request.resource.size > 0
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isSignedIn() && (request.auth.uid == sellerId || isAdmin());
+    }
+  }
+}

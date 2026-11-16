@@ -1,0 +1,6 @@
+{
+  "name": "TISAHARA",
+  "description": "Indian multi-vendor shopping marketplace where independent sellers create stores, list products, and earn transparent margins.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
